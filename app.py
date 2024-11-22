@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import datetime as dt
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Sample format information
 format_info = """
@@ -54,15 +56,26 @@ def main():
                         future_plan.append({'City': city, 'Program': program, 'Date': date})
             future_plan_df = pd.DataFrame(future_plan)
 
-            # Display dataframes
+            # Generate bar charts
             st.header("Revenue by City")
-            st.dataframe(revenue_by_city)
+            fig_city, ax_city = plt.subplots()
+            sns.barplot(x='City', y='Revenue', data=revenue_by_city, ax=ax_city)
+            plt.xticks(rotation=45)
+            st.pyplot(fig_city)
 
             st.header("Revenue by Program")
-            st.dataframe(revenue_by_program)
+            fig_program, ax_program = plt.subplots()
+            sns.barplot(x='Program', y='Revenue', data=revenue_by_program, ax=ax_program)
+            plt.xticks(rotation=45)
+            st.pyplot(fig_program)
 
             st.header("Future Training Program Plan")
             st.dataframe(future_plan_df)
+
+            # Recommend which training program to prioritize in each city
+            st.header("Recommendations")
+            recommendations = city_program_count.sort_values(by='Count', ascending=False).groupby('City').first().reset_index()
+            st.write(recommendations)
 
             # Display current pricing
             st.header("Current Pricing")
@@ -70,6 +83,6 @@ def main():
             st.write(f"Masters Program: ₹{masters_price}")
         else:
             st.error("The uploaded Excel file does not have the expected columns. Please check the format information above.")
-            
+
 if __name__ == "__main__":
     main()
